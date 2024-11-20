@@ -1,28 +1,21 @@
 package me.ellieis.Sabotage.game.custom.blocks;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
-import me.ellieis.Sabotage.Sabotage;
-import me.ellieis.Sabotage.game.phase.SabotageActive;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.WallSignBlock;
 import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.block.entity.SignText;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class WallTesterSign extends WallSignBlock implements PolymerBlock {
     private final Block virtualBlock;
@@ -33,22 +26,18 @@ public class WallTesterSign extends WallSignBlock implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return this.virtualBlock;
-    }
-    @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         BaseTesterSign.onPlaced(world, pos);
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 
         BaseTesterSign.onUse(world, player, pos.subtract(new Vec3i(0, 1, 0)));
         return ActionResult.FAIL;
     }
 
-    public BlockState getPolymerBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return this.virtualBlock.getStateWithProperties(state);
     }
 

@@ -9,6 +9,8 @@ import me.ellieis.Sabotage.game.statistics.GlobalPlayerStatistics;
 import me.ellieis.Sabotage.game.statistics.SabotagePlayerStatistics;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -21,11 +23,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -96,18 +98,13 @@ public class SabotageChest extends ChestBlock implements BlockEntityProvider, Po
         return stack;
     }
     public SabotageChest(Settings settings, Block virtualBlock) {
-        super(settings, () -> SABOTAGE_CHEST_ENTITY);
+        super(() -> SABOTAGE_CHEST_ENTITY, settings);
 
         this.virtualBlock = virtualBlock;
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return this.virtualBlock;
-    }
-
-    @Override
-    public ActionResult onUse(BlockState state, World woorld, BlockPos pos, PlayerEntity plr, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World woorld, BlockPos pos, PlayerEntity plr, BlockHitResult hit) {
         if (woorld.isClient()) return ActionResult.PASS;
         SabotageActive game = null;
 
@@ -139,7 +136,7 @@ public class SabotageChest extends ChestBlock implements BlockEntityProvider, Po
         return ActionResult.FAIL;
     }
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return this.virtualBlock.getStateWithProperties(state);
     }
 

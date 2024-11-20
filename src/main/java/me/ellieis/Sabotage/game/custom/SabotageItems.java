@@ -11,13 +11,15 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 
 public class SabotageItems {
-    public static final Item SABOTAGE_CHEST = new PolymerBlockItem(SabotageBlocks.SABOTAGE_CHEST, new Item.Settings(), Items.CHEST);
-    public static final Item TESTER_WOOL = new PolymerBlockItem(SabotageBlocks.TESTER_WOOL, new Item.Settings(), Items.WHITE_WOOL);
-    public static final Item TESTER_SIGN = new TesterSign(new Item.Settings(), SabotageBlocks.TESTER_SIGN, SabotageBlocks.WALL_TESTER_SIGN);
-    public static final Item DETECTIVE_SHEARS = new DetectiveShears(new Item.Settings().maxDamage(101));
+    public static final Item SABOTAGE_CHEST = new PolymerBlockItem(SabotageBlocks.SABOTAGE_CHEST, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Sabotage.identifier("sabotage_chest"))), Items.CHEST);
+    public static final Item TESTER_WOOL = new PolymerBlockItem(SabotageBlocks.TESTER_WOOL, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Sabotage.identifier("tester_wool"))), Items.WHITE_WOOL);
+    public static final Item TESTER_SIGN = new TesterSign(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Sabotage.identifier("tester_sign"))), SabotageBlocks.TESTER_SIGN, SabotageBlocks.WALL_TESTER_SIGN);
+    public static final Item DETECTIVE_SHEARS = new DetectiveShears(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Sabotage.identifier("detective_shears"))).maxDamage(101));
     public static final ItemGroup ITEM_GROUP = FabricItemGroup.builder()
             .displayName(Text.translatable("gameType.sabotage.sabotage"))
             .icon(SABOTAGE_CHEST::getDefaultStack)

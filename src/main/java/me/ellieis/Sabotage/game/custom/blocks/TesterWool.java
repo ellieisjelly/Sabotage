@@ -3,6 +3,7 @@ package me.ellieis.Sabotage.game.custom.blocks;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TesterWool extends Block implements PolymerBlock {
     private final Block virtualBlock;
@@ -11,7 +12,7 @@ public class TesterWool extends Block implements PolymerBlock {
         this.virtualBlock = virtualBlock;
     }
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return this.virtualBlock;
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+        return this.virtualBlock.getStateWithProperties(state);
     }
 }

@@ -12,7 +12,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class DetectiveShears extends Item implements PolymerItem {
     public DetectiveShears(Settings settings) {
@@ -35,7 +35,7 @@ public class DetectiveShears extends Item implements PolymerItem {
     }
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Items.SHEARS;
     }
 }

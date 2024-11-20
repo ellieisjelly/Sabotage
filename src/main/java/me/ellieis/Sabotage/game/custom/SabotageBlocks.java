@@ -11,15 +11,17 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 
 
 public class SabotageBlocks {
-    public static final SabotageChest SABOTAGE_CHEST = new SabotageChest(AbstractBlock.Settings.copy(Blocks.CHEST).dropsNothing(), Blocks.CHEST);
-    public static final TesterWool TESTER_WOOL = new TesterWool(AbstractBlock.Settings.copy(Blocks.WHITE_WOOL).dropsNothing(), Blocks.WHITE_WOOL);
-    public static final TesterSign TESTER_SIGN = new TesterSign(AbstractBlock.Settings.copy(Blocks.OAK_SIGN).dropsNothing(), Blocks.OAK_SIGN);
-    public static final WallTesterSign WALL_TESTER_SIGN = new WallTesterSign(AbstractBlock.Settings.copy(Blocks.OAK_WALL_SIGN), Blocks.OAK_WALL_SIGN);
+    public static final SabotageChest SABOTAGE_CHEST = new SabotageChest(AbstractBlock.Settings.copy(Blocks.CHEST).dropsNothing().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Sabotage.identifier("sabotage_chest"))), Blocks.CHEST);
+    public static final TesterWool TESTER_WOOL = new TesterWool(AbstractBlock.Settings.copy(Blocks.WHITE_WOOL).dropsNothing().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Sabotage.identifier("tester_wool"))), Blocks.WHITE_WOOL);
+    public static final TesterSign TESTER_SIGN = new TesterSign(AbstractBlock.Settings.copy(Blocks.OAK_SIGN).dropsNothing().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Sabotage.identifier("tester_sign"))), Blocks.OAK_SIGN);
+    public static final WallTesterSign WALL_TESTER_SIGN = new WallTesterSign(AbstractBlock.Settings.copy(Blocks.OAK_WALL_SIGN).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Sabotage.identifier("wall_tester_sign"))), Blocks.OAK_WALL_SIGN);
 
-    public static final BlockEntityType<SabotageChestBlockEntity> SABOTAGE_CHEST_ENTITY = FabricBlockEntityTypeBuilder.create(SabotageChestBlockEntity::new, SABOTAGE_CHEST).build(null);
+    public static final BlockEntityType<SabotageChestBlockEntity> SABOTAGE_CHEST_ENTITY = FabricBlockEntityTypeBuilder.create(SabotageChestBlockEntity::new, SABOTAGE_CHEST).build();
     public static void register() {
         register("sabotage_chest", SABOTAGE_CHEST);
         register("tester_wool", TESTER_WOOL);

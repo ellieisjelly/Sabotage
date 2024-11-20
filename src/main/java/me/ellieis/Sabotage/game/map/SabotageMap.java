@@ -6,7 +6,6 @@ import me.ellieis.Sabotage.game.custom.blocks.TesterWool;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -18,9 +17,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.TemplateRegion;
-import xyz.nucleoid.plasmid.game.GameOpenException;
-import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameOpenException;
+import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+
 
 import java.util.*;
 
@@ -102,17 +102,10 @@ public class SabotageMap {
         return this.playerSpawnPos;
     }
 
-    public void spawnEntity(Entity entity) {
+    public void spawnPlayer(ServerWorld world, ServerPlayerEntity plr) {
         TemplateRegion spawn = spawns.get(new Random().nextInt(spawns.size()));
         Vec3d pos = spawn.getBounds().centerBottom();
-        entity.teleport(pos.getX(), pos.getY(), pos.getZ());
-        entity.setYaw(spawn.getData().getFloat("Rotation"));
-    }
-
-    public void spawnEntity(ServerWorld world, ServerPlayerEntity plr) {
-        TemplateRegion spawn = spawns.get(new Random().nextInt(spawns.size()));
-        Vec3d pos = spawn.getBounds().centerBottom();
-        plr.teleport(world, pos.getX(), pos.getY(), pos.getZ(), spawn.getData().getFloat("Rotation"), 0);
+        plr.teleport(world, pos.getX(), pos.getY(), pos.getZ(), new HashSet<>(), spawn.getData().getFloat("Rotation"), 0, true);
         plr.setOnGround(true);
         plr.setVelocity(0,0,0);
         this.playerSpawnPos.put(new PlayerRef(plr.getUuid()), pos);

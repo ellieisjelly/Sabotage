@@ -1,7 +1,7 @@
 package me.ellieis.Sabotage.game.statistics;
 
 import net.minecraft.server.network.ServerPlayerEntity;
-import xyz.nucleoid.plasmid.game.stats.GameStatisticBundle;
+import xyz.nucleoid.plasmid.api.game.stats.GameStatisticBundle;
 
 import static me.ellieis.Sabotage.game.statistics.GlobalPlayerStatistics.TOTAL_KARMA;
 import static me.ellieis.Sabotage.game.statistics.SabotagePlayerStatistics.KARMA;
@@ -18,7 +18,7 @@ public class KarmaManager {
         stats.forPlayer(plr).set(KARMA, karma);
         plr.setExperienceLevel(karma);
         if (karma <= 0) {
-            plr.kill();
+            plr.kill(plr.getServerWorld());
         }
     }
     public void incrementKarma(ServerPlayerEntity plr, int karma) {

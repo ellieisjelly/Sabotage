@@ -2,7 +2,6 @@ package me.ellieis.Sabotage.game.phase;
 
 import com.google.common.collect.ImmutableSet;
 import eu.pb4.sidebars.api.Sidebar;
-import eu.pb4.sidebars.api.lines.SidebarLine;
 import me.ellieis.Sabotage.Sabotage;
 import me.ellieis.Sabotage.game.EndReason;
 import me.ellieis.Sabotage.game.GameStates;
@@ -22,6 +21,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerPosition;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SentMessage;
@@ -34,30 +34,30 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
-import xyz.nucleoid.plasmid.game.common.widget.SidebarWidget;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.MutablePlayerSet;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.player.PlayerSet;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
-import xyz.nucleoid.plasmid.game.stats.GameStatisticBundle;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.api.game.common.widget.SidebarWidget;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.*;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.stats.GameStatisticBundle;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockRandomTickEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 import xyz.nucleoid.stimuli.event.player.ReplacePlayerChatEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static me.ellieis.Sabotage.Sabotage.MOD_ID;
@@ -352,7 +352,7 @@ public class SabotageActive {
                 return false;
             }
             isTesterOnCooldown = true;
-            plr.teleport(pos.getX(), pos.getY(), pos.getZ());
+            plr.teleport(pos.getX(), pos.getY(), pos.getZ(), true);
             plr.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 100));
             plr.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 200));
             for (BlockPos blockPos : map.getTesterCloseRegion().getBounds()) {
@@ -399,19 +399,19 @@ public class SabotageActive {
         switch(plrRole) {
             case INNOCENT -> {
                 karmaManager.decrementKarma(attacker, innocentKarma);
-                attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, SoundCategory.RECORDS, 1, 1);
+                attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, 1, 1);
                 attacker.sendMessage(createAttackerKillMessage(plr, -innocentKarma));
             }
 
             case DETECTIVE -> {
                 karmaManager.decrementKarma(attacker, detectiveKarma);
-                attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, SoundCategory.RECORDS, 1, 1);
+                attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, 1, 1);
                 attacker.sendMessage(createAttackerKillMessage(plr, -detectiveKarma));
             }
 
             case SABOTEUR -> {
                 karmaManager.incrementKarma(attacker, saboteurKarma);
-                attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER, SoundCategory.RECORDS, 1, 1f);
+                attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER, 1, 1);
                 attacker.sendMessage(createAttackerKillMessage(plr, saboteurKarma));
             }
         }
@@ -469,16 +469,17 @@ public class SabotageActive {
             activity.listen(PlayerDeathEvent.EVENT, game::onDeath);
             activity.listen(ReplacePlayerChatEvent.EVENT, game::onChat);
             activity.listen(GamePlayerEvents.REMOVE, game::onPlayerRemove);
-            activity.listen(GamePlayerEvents.OFFER, game::onOffer);
+            activity.listen(GamePlayerEvents.OFFER, JoinOffer::accept);
+            activity.listen(GamePlayerEvents.ACCEPT, game::onAccept);
             activity.listen(GameActivityEvents.DESTROY, game::onDestroy);
-            activity.listen(BlockRandomTickEvent.EVENT, (_block, _pos, _state) -> ActionResult.FAIL);
+            activity.listen(BlockRandomTickEvent.EVENT, (_block, _pos, _state) -> EventResult.DENY);
             map.setWorld(world);
             map.generateChests();
             PlayerSet plrs = game.gameSpace.getPlayers();
             plrs.showTitle(Text.literal(Integer.toString(game.config.countdownTime())).formatted(Formatting.GOLD), 20);
             plrs.playSound(SoundEvents.BLOCK_NOTE_BLOCK_HARP.value(), SoundCategory.PLAYERS, 1.0F, 2.0F);
             for (ServerPlayerEntity plr : plrs) {
-                game.map.spawnEntity(world, plr);
+                game.map.spawnPlayer(world, plr);
                 game.globalSidebar.addPlayer(plr);
                 plr.setOnFire(false);
                 plr.setFireTicks(0);
@@ -504,15 +505,15 @@ public class SabotageActive {
         return false;
     }
 
-    private ActionResult onDeath(ServerPlayerEntity plr, DamageSource damageSource) {
+    private EventResult onDeath(ServerPlayerEntity plr, DamageSource damageSource) {
         // remove player from team
         Entity entityAttacker = damageSource.getAttacker();
         Roles plrRole = getPlayerRole(plr);
         plr.changeGameMode(GameMode.SPECTATOR);
-        plr.playSound(SoundEvents.ENTITY_COW_DEATH, SoundCategory.PLAYERS, 1, 0.7f);
+        plr.playSound(SoundEvents.ENTITY_COW_DEATH, 1, 0.7f);
         dead.add(plr);
         if (gameState != GameStates.ACTIVE) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
 
@@ -525,20 +526,20 @@ public class SabotageActive {
                     switch(plrRole) {
                         case INNOCENT -> {
                             karmaManager.incrementKarma(attacker, config.innocentKarmaAward());
-                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER, SoundCategory.RECORDS, 1, 1f);
+                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER, 1, 1f);
                             attacker.sendMessage(createAttackerKillMessage(plr, config.innocentKarmaAward()));
                         }
 
                         case DETECTIVE -> {
                             karmaManager.incrementKarma(attacker, config.detectiveKarmaAward());
-                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER, SoundCategory.RECORDS, 1, 1f);
-                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, SoundCategory.RECORDS, 0.5f, 1f);
+                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER, 1, 1f);
+                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, 0.5f, 1f);
                             attacker.sendMessage(createAttackerKillMessage(plr, config.detectiveKarmaAward()));
                         }
 
                         case SABOTEUR -> {
                             karmaManager.decrementKarma(attacker, config.saboteurKarmaPenalty());
-                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, SoundCategory.RECORDS, 1, 1f);
+                            attacker.playSound(SoundEvents.BLOCK_TRIAL_SPAWNER_DETECT_PLAYER, 1, 1f);
                             attacker.sendMessage(createAttackerKillMessage(plr, -config.saboteurKarmaPenalty()));
                         }
                     }
@@ -578,12 +579,11 @@ public class SabotageActive {
 
             plrs.sendMessage(Text.translatable("sabotage.kill_message", plr.getName(), getAlivePlayers().size()).formatted(Formatting.YELLOW));
         }
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 
-    private PlayerOfferResult onOffer(PlayerOffer offer) {
-        ServerPlayerEntity plr = offer.player();
-        return offer.accept(this.world, new Vec3d(0.0, 66.0, 0.0)).and(() -> {
+    private JoinAcceptorResult onAccept(JoinAcceptor acceptor) {
+        return acceptor.teleport(this.world, new Vec3d(0, 66, 0)).thenRunForEach((plr) -> {
             // player joined after game start, so they're technically dead
             plr.changeGameMode(GameMode.SPECTATOR);
             globalSidebar.addPlayer(plr);
@@ -653,7 +653,7 @@ public class SabotageActive {
                     // Set X and Y as relative so it will send 0 change when we pass yaw (yaw - yaw = 0) and pitch
                     Set<PositionFlag> flags = ImmutableSet.of(PositionFlag.X_ROT, PositionFlag.Y_ROT);
                     // Teleport without changing the pitch and yaw
-                    plr.networkHandler.requestTeleport(pos.getX(), pos.getY(), pos.getZ(), plr.getYaw(), plr.getPitch(), flags);
+                    plr.networkHandler.requestTeleport(new PlayerPosition(pos, new Vec3d(0, 0, 0), plr.getYaw(), plr.getPitch()), flags);
                 }
             }
 

@@ -1,6 +1,6 @@
 package me.ellieis.Sabotage.game.utils;
 
-import xyz.nucleoid.plasmid.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
 
 import java.util.function.Consumer;
 

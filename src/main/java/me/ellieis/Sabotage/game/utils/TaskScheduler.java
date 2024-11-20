@@ -1,7 +1,7 @@
 package me.ellieis.Sabotage.game.utils;
 
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
 
 import java.util.ArrayList;
 
