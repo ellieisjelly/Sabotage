@@ -652,8 +652,9 @@ public class SabotageActive {
                     Vec3d pos = map.getPlayerSpawns().get(new PlayerRef(plr.getUuid()));
                     // Set X and Y as relative so it will send 0 change when we pass yaw (yaw - yaw = 0) and pitch
                     Set<PositionFlag> flags = ImmutableSet.of(PositionFlag.X_ROT, PositionFlag.Y_ROT);
+
                     // Teleport without changing the pitch and yaw
-                    plr.networkHandler.requestTeleport(new PlayerPosition(pos, new Vec3d(0, 0, 0), plr.getYaw(), plr.getPitch()), flags);
+                    plr.teleport(plr.getServerWorld(), pos.getX(), pos.getY(), pos.getZ(), flags, 0, 0, false);
                 }
             }
 
