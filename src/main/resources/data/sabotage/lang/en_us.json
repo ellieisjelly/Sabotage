@@ -1,8 +1,8 @@
 {
   "gameType.sabotage.sabotage": "Sabotage",
-  "block.sabotage.sabotage_chest": "Sabotage Chest",
-  "block.sabotage.tester_wool": "Tester Wool",
-  "block.sabotage.tester_sign": "Tester Sign",
+  "item.sabotage.sabotage_chest": "Sabotage Chest",
+  "item.sabotage.tester_wool": "Tester Wool",
+  "item.sabotage.tester_sign": "Tester Sign",
   "item.sabotage.detective_shears": "Portable Tester",
 
   "map.sabotage.random": "Random",

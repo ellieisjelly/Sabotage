@@ -11,6 +11,7 @@ import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -37,5 +38,10 @@ public class DetectiveShears extends Item implements PolymerItem {
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Items.SHEARS;
+    }
+
+    @Override
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
     }
 }
